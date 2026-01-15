@@ -1,16 +1,17 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { AuthData } = require("../data/auth.data");
-const { TokenBlacklist } = require("../models");
+const { TokenBlacklist, User } = require("../models");
+const { v4: uuidv4 } = require("uuid");
 
 exports.AuthController = {
   login: async (req, res) => {
     const { email, password } = req.body;
 
-    const response = await AuthData.getUser(email);
-    const user = response[0];
+    const user = await User.findOne({
+      where: { email },
+    });
 
-    if (email !== user.email) {
+    if (!user) {
       return res.status(401).json({ message: "Usuário não encontrado" });
     }
 
@@ -30,57 +31,81 @@ exports.AuthController = {
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    let userData = {
-      name: user.name,
-      lastName: user.last_name,
-      email: user.email,
-      userType: user.type_user,
-    };
+    const userData = user.toJSON();
+    delete userData.password;
 
-    if (user.type_user === "customer") {
-      userData = {
-        ...userData,
-        state: user.state,
-        zipCode: user.zip_code,
-        street: user.street,
-        houseNumber: user.house_number,
-        complement: user.complement,
-        neighborhood: user.neighborhood,
-        city: user.city,
-      };
+    if (user.type_user === "admin") {
+      delete userData.state;
+      delete userData.zip_code;
+      delete userData.street;
+      delete userData.house_number;
+      delete userData.complement;
+      delete userData.neighborhood;
+      delete userData.city;
     }
 
-    return res.json({ token: token, userData });
+    return res.json({ token: token, user: userData });
   },
 
   register: async (req, res) => {
-    const data = req.body;
+    try {
+      const {
+        name,
+        lastName,
+        email,
+        password,
+        typeUser,
+        zipCode,
+        street,
+        houseNumber,
+        complement,
+        neighborhood,
+        city,
+        state,
+      } = req.body;
 
-    const userExists = await AuthData.getUser(data.email);
-    if (userExists[0]) {
+      const userExists = await User.findOne({
+        where: { email },
+      });
+
+      if (userExists) {
+        return res
+          .status(400)
+          .json({ message: "Já existe usuário cadastrado com esse e-mail" });
+      }
+
+      if (!(name && lastName && email && password && zipCode)) {
+        return res
+          .status(400)
+          .json({ message: "Preencha os campos obrigatórios" });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await User.create({
+        id_user: uuidv4(),
+        name,
+        last_name: lastName,
+        email,
+        password: passwordHash,
+        type_user: typeUser || "customer",
+        zip_code: zipCode || "",
+        street: street,
+        house_number: houseNumber,
+        complement,
+        neighborhood,
+        city,
+        state,
+        permission_appointments: "0",
+        permission_logs: "0",
+        status: "0",
+      });
+
+      return res.status(201).json(user);
+    } catch (error) {
       return res
-        .status(400)
-        .json({ message: "Já existe usuário cadasrado com esse e-mail" });
+        .status(500)
+        .json({ message: "Ocorreu um erro durante a criação do usuário." });
     }
-
-    if (
-      !(
-        data.name &&
-        data.lastName &&
-        data.email &&
-        data.password &&
-        data.zipCode
-      )
-    ) {
-      return res
-        .status(400)
-        .json({ message: "Preencha os campos obrigatórios" });
-    }
-
-    const passwordHash = await bcrypt.hash(data.password, 10);
-    const result = await AuthData.createUser({ ...data, passwordHash });
-
-    return res.status(201).json({ status: "Ok" });
   },
 
   logout: async (req, res) => {
