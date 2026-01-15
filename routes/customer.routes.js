@@ -4,12 +4,10 @@ const CustomerController = require("../controllers/customer.controller");
 
 const router = express.Router();
 
-router.get("/", authMiddleware, async (req, res) => {
-  const customerList = await CustomerController.getCustomerList();
-
-  res.json(customerList);
-});
+router.get("/", authMiddleware, CustomerController.getCustomerList);
 
 router.put("/", authMiddleware, CustomerController.updateProfile);
+
+router.put("/:idUser", authMiddleware, CustomerController.updateProfile);
 
 module.exports = router;

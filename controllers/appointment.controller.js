@@ -27,7 +27,6 @@ const AppointmentController = {
 
       return res.status(200).json(appointments);
     } catch (error) {
-      console.error(error);
       return res.status(500).json({
         message: "Erro ao buscar agendamentos",
       });
