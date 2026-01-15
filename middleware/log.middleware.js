@@ -1,7 +1,7 @@
 // src/middleware/log.middleware.js
 const jwt = require("jsonwebtoken");
-const db = require("../database/mysql");
 const { v4: uuidv4 } = require("uuid");
+const { Log } = require("../models");
 
 module.exports = (options = {}) => {
   return (req, res, next) => {
@@ -26,16 +26,13 @@ module.exports = (options = {}) => {
         const module =
           options.module || req.originalUrl.split("/")[1] || "unknown";
 
-        await db.query(
-          `INSERT INTO tb_log (
-            id_logs,
-            activity_type,
-            module,
-            created_at,
-            id_user
-          ) VALUES (?, ?, ?, ?, ?)`,
-          [uuidv4(), activityType, module.substring(0, 15), new Date(), userId]
-        );
+        const log = await Log.create({
+          id_logs: uuidv4(),
+          activity_type: activityType,
+          module: module.substring(0, 15),
+          created_at: new Date(),
+          id_user: userId,
+        });
       } catch (err) {
         console.error("Erro ao registrar log:", err.message);
       }
