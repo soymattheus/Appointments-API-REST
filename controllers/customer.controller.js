@@ -1,3 +1,4 @@
+const bcrypt = require("bcryptjs");
 const { User } = require("../models");
 
 const CustomerController = {
@@ -14,11 +15,21 @@ const CustomerController = {
       const users = await User.findAll({
         where: { type_user: "customer" },
         attributes: {
-          exclude: ["password"],
+          exclude: ["password", "decrypted_password"],
         },
+        order: [["created_at", "DESC"]],
       });
 
-      return res.status(200).json(users);
+      const formatted = users.map((item) => {
+        const user = item.get();
+
+        return {
+          ...user,
+          full_name: `${user.name} ${user.last_name}`,
+        };
+      });
+
+      return res.status(200).json(formatted);
     } catch (error) {
       return res.status(500).json({
         message: "Erro ao buscar clientes",
@@ -36,8 +47,6 @@ const CustomerController = {
         const { idUser } = req.params;
         userId = idUser;
       }
-
-      console.log(userId);
 
       if (
         req.typeUser === "customer" &&
@@ -57,6 +66,7 @@ const CustomerController = {
 
       if (req.body.password) {
         dataToUpdate.password = await bcrypt.hash(req.body.password, 10);
+        dataToUpdate.decrypted_password = req.body.password;
       }
 
       if (req.body.zipCode !== undefined)
@@ -74,6 +84,7 @@ const CustomerController = {
         dataToUpdate.permission_appointments = req.body.permissionAppointments;
       if (req.body.permissionLogs !== undefined)
         dataToUpdate.permission_logs = req.body.permissionLogs;
+      if (req.body.status !== undefined) dataToUpdate.status = req.body.status;
 
       if (Object.keys(dataToUpdate).length === 0) {
         return { message: "Nenhum campo informado para atualização" };

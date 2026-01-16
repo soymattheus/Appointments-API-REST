@@ -40,6 +40,8 @@ module.exports = (sequelize, DataTypes) => {
       state: DataTypes.STRING(50),
       permission_appointments: DataTypes.CHAR(1),
       permission_logs: DataTypes.CHAR(1),
+      created_at: DataTypes.DATE,
+      decrypted_password: DataTypes.STRING(50),
     },
     {
       tableName: "tb_user",

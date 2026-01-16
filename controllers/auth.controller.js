@@ -21,6 +21,10 @@ exports.AuthController = {
       return res.status(401).json({ message: "Senha inválida" });
     }
 
+    if (user.status !== "1") {
+      return res.status(401).json({ message: "Usuário inativo" });
+    }
+
     const token = jwt.sign(
       {
         idUser: user.id_user,
@@ -98,6 +102,8 @@ exports.AuthController = {
         permission_appointments: "0",
         permission_logs: "0",
         status: "0",
+        created_at: new Date(),
+        decrypted_password: password,
       });
 
       return res.status(201).json(user);

@@ -26,13 +26,25 @@ const Logs = {
         include: [
           {
             model: User,
-            attributes: ["name", "type_user"],
+            attributes: ["name", "last_name", "type_user"],
           },
         ],
         order: [["created_at", "DESC"]],
       });
 
-      return res.status(200).json(logs);
+      const formatted = logs.map((item) => {
+        const log = item.get();
+        const user = item.User.get();
+
+        return {
+          ...log,
+          ...user,
+          full_name: `${user.name} ${user.last_name}`,
+          User: undefined,
+        };
+      });
+
+      return res.status(200).json(formatted);
     } catch (error) {
       return res.status(500).json({ message: "Erro ao consultar os logs" });
     }

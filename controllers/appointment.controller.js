@@ -19,13 +19,25 @@ const AppointmentController = {
         include: [
           {
             model: User,
-            attributes: ["name", "type_user"],
+            attributes: ["name", "type_user", "last_name"],
           },
         ],
         order: [["date", "DESC"]],
       });
 
-      return res.status(200).json(appointments);
+      const formatted = appointments.map((item) => {
+        const appointment = item.get();
+        const user = item.User.get();
+
+        return {
+          ...appointment,
+          ...user,
+          full_name: `${user.name} ${user.last_name}`,
+          User: undefined,
+        };
+      });
+
+      return res.status(200).json(formatted);
     } catch (error) {
       return res.status(500).json({
         message: "Erro ao buscar agendamentos",
@@ -57,12 +69,9 @@ const AppointmentController = {
       const { appointmentId } = req.params;
       const { date, room, status } = req.body;
 
-      if (
-        req.typeUser !== "admin" &&
-        (status === "scheduled" || status === "canceled")
-      ) {
+      if (req.typeUser !== "admin" && status === "scheduled") {
         return res.status(401).json({
-          message: "Apenas Administrador pode alterar status.",
+          message: "Apenas Administrador pode aprovar status.",
         });
       }
 
@@ -74,7 +83,6 @@ const AppointmentController = {
           },
         });
 
-        console.log(userId);
         if (exists === 0) {
           return res.status(404).json({
             message: "Agendamento não encontrado",
