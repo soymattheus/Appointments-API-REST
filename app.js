@@ -14,10 +14,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000", // Next.js
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.use(express.json());
