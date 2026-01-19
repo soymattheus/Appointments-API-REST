@@ -62,7 +62,7 @@ const CustomerController = {
 
       if (req.body.name) dataToUpdate.name = req.body.name;
       if (req.body.last_name) dataToUpdate.last_name = req.body.last_name;
-      if (req.body.email) dataToUpdate.email = req.body.email;
+      if (req.body.email) dataToUpdate.email = req.body.email.toLowerCase();
 
       if (req.body.password) {
         dataToUpdate.password = await bcrypt.hash(req.body.password, 10);

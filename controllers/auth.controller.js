@@ -8,7 +8,7 @@ exports.AuthController = {
     const { email, password } = req.body;
 
     const user = await User.findOne({
-      where: { email },
+      where: { email: email.toLowerCase() },
     });
 
     if (!user) {
@@ -97,7 +97,7 @@ exports.AuthController = {
       const passwordHash = await bcrypt.hash(password, 10);
       const user = await User.create({
         id_user: uuidv4(),
-        name,
+        name: email.toLowerCase(),
         last_name,
         email,
         password: passwordHash,
