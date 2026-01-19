@@ -24,19 +24,32 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(36),
         allowNull: false,
       },
+      id_room: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      },
     },
     {
       tableName: "tb_appointment",
       timestamps: false,
       underscored: true,
-    }
+    },
   );
 
   Appointment.associate = (models) => {
     Appointment.belongsTo(models.User, {
       foreignKey: "id_user",
     });
+
+    Appointment.belongsTo(models.Room, {
+      foreignKey: "id_room",
+    });
   };
+  // Appointment.associate = (models) => {
+  //   Appointment.belongsTo(models.Room, {
+  //     foreignKey: "id_room",
+  //   });
+  // };
 
   return Appointment;
 };

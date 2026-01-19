@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require("uuid");
 exports.AuthController = {
   login: async (req, res) => {
     const { email, password } = req.body;
-    console.log(email, password);
 
     const user = await User.findOne({
       where: { email },

@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
-const { Appointment, User } = require("../models");
+const { Appointment, User, Room } = require("../models");
 
 const AppointmentController = {
   getAppointments: async (req, res) => {
@@ -13,31 +13,67 @@ const AppointmentController = {
         where.id_user = userId;
       }
 
+      // const appointments = await Appointment.findAll({
+      //   where,
+      //   attributes: ["id_appointment", "date", "room", "status", "id_user"],
+      //   include: [
+      //     {
+      //       model: User,
+      //       attributes: ["name", "type_user", "last_name"],
+      //     },
+      //   ],
+      //   order: [["date", "DESC"]],
+      // });
+
+      // console.log("aqui");
+
+      // const formatted = appointments.map((item) => {
+      //   const appointment = item.get();
+      //   const user = item.User.get();
+
+      //   return {
+      //     ...appointment,
+      //     ...user,
+      //     full_name: `${user.name} ${user.last_name}`,
+      //     User: undefined,
+      //   };
+      // });
+      const { sequelize } = require("../models");
+
       const appointments = await Appointment.findAll({
         where,
-        attributes: ["id_appointment", "date", "room", "status", "id_user"],
+        attributes: [
+          "id_appointment",
+          "date",
+          "room",
+          "status",
+          "id_user",
+          "id_room",
+          [sequelize.col("User.name"), "user_name"],
+          [sequelize.col("User.last_name"), "user_last_name"],
+          [sequelize.col("User.type_user"), "type_user"],
+          [sequelize.col("Room.id_room"), "room_id"],
+          [sequelize.col("Room.name"), "room_name"],
+          [
+            sequelize.literal("CONCAT(User.name, ' ', User.last_name)"),
+            "full_name",
+          ],
+        ],
         include: [
           {
             model: User,
-            attributes: ["name", "type_user", "last_name"],
+            attributes: [],
+          },
+          {
+            model: Room,
+            attributes: [],
           },
         ],
         order: [["date", "DESC"]],
+        raw: true,
       });
 
-      const formatted = appointments.map((item) => {
-        const appointment = item.get();
-        const user = item.User.get();
-
-        return {
-          ...appointment,
-          ...user,
-          full_name: `${user.name} ${user.last_name}`,
-          User: undefined,
-        };
-      });
-
-      return res.status(200).json(formatted);
+      return res.status(200).json(appointments);
     } catch (error) {
       return res.status(500).json({
         message: "Erro ao buscar agendamentos",
@@ -48,12 +84,12 @@ const AppointmentController = {
   createAppointment: async (req, res) => {
     try {
       const userId = req.userId;
-      const { date, room } = req.body;
+      const { date, id_room } = req.body;
 
       const appointment = await Appointment.create({
         id_appointment: uuidv4(),
         date: date || null,
-        room: room || null,
+        id_room: id_room,
         id_user: userId,
       });
 
