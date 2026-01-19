@@ -1,6 +1,7 @@
 const express = require("express");
 const { AuthController } = require("../controllers/auth.controller");
 const { authMiddleware } = require("../middleware/auth.middleware");
+const logMiddleware = require("../middleware/log.middleware");
 
 const router = express.Router();
 
@@ -14,6 +15,14 @@ router.get("/validate", authMiddleware, (req, res) => {
   });
 });
 
-router.post("/logout", authMiddleware, AuthController.logout);
+router.post(
+  "/logout",
+  authMiddleware,
+  logMiddleware({
+    activityType: "Logout",
+    module: "Minha conta",
+  }),
+  AuthController.logout,
+);
 
 module.exports = router;

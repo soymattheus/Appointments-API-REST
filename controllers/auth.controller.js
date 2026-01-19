@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { TokenBlacklist, User } = require("../models");
+const { TokenBlacklist, User, Log } = require("../models");
 const { v4: uuidv4 } = require("uuid");
 
 exports.AuthController = {
@@ -46,6 +46,16 @@ exports.AuthController = {
       delete userData.complement;
       delete userData.neighborhood;
       delete userData.city;
+    }
+
+    if (user.type_user === "customer") {
+      await Log.create({
+        id_logs: uuidv4(),
+        activity_type: "Login",
+        module: "Minha conta",
+        created_at: new Date(),
+        id_user: user.id_user,
+      });
     }
 
     return res.json({ token: token, user: userData });

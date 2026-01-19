@@ -13,31 +13,6 @@ const AppointmentController = {
         where.id_user = userId;
       }
 
-      // const appointments = await Appointment.findAll({
-      //   where,
-      //   attributes: ["id_appointment", "date", "room", "status", "id_user"],
-      //   include: [
-      //     {
-      //       model: User,
-      //       attributes: ["name", "type_user", "last_name"],
-      //     },
-      //   ],
-      //   order: [["date", "DESC"]],
-      // });
-
-      // console.log("aqui");
-
-      // const formatted = appointments.map((item) => {
-      //   const appointment = item.get();
-      //   const user = item.User.get();
-
-      //   return {
-      //     ...appointment,
-      //     ...user,
-      //     full_name: `${user.name} ${user.last_name}`,
-      //     User: undefined,
-      //   };
-      // });
       const { sequelize } = require("../models");
 
       const appointments = await Appointment.findAll({
