@@ -48,15 +48,13 @@ exports.AuthController = {
       delete userData.city;
     }
 
-    if (user.type_user === "customer") {
-      await Log.create({
-        id_logs: uuidv4(),
-        activity_type: "Login",
-        module: "Minha conta",
-        created_at: new Date(),
-        id_user: user.id_user,
-      });
-    }
+    await Log.create({
+      id_logs: uuidv4(),
+      activity_type: "Login",
+      module: "Minha conta",
+      created_at: new Date(),
+      id_user: user.id_user,
+    });
 
     return res.json({ token: token, user: userData });
   },
