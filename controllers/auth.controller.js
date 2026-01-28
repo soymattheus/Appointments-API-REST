@@ -95,9 +95,9 @@ exports.AuthController = {
       const passwordHash = await bcrypt.hash(password, 10);
       const user = await User.create({
         id_user: uuidv4(),
-        name: email.toLowerCase(),
+        name,
         last_name,
-        email,
+        email: email.toLowerCase(),
         password: passwordHash,
         type_user: type_user || "customer",
         zip_code,
