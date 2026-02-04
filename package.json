@@ -8,7 +8,6 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon ./src/server.js",
-    "start": "node dist/src/server.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo"
   },
