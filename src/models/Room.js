@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     "Room",
     {
       id_room: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.UUID,
+        defaultValue: sequelize.literal("(UUID())"),
         primaryKey: true,
         allowNull: false,
       },
@@ -27,10 +28,20 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
     },
     {
       tableName: "tb_room",
-      timestamps: false, // não existe created_at / updated_at
+      timestamps: true,
     },
   );
 

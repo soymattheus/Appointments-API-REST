@@ -1,0 +1,27 @@
+services:
+  service-mysql:
+    image: mysql:8.0
+    container_name: appointment-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: docker
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysqldata:/var/lib/mysql
+    command: --default-authentication-plugin=caching_sha2_password
+
+  api:
+    build: .
+    container_name: appointment-api
+    ports:
+      - "9890:9890"
+    depends_on:
+      - service-mysql
+    env_file:
+      - .env
+
+volumes:
+  mysqldata:

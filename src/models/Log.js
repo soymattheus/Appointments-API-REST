@@ -2,8 +2,9 @@ module.exports = (sequelize, DataTypes) => {
   const Log = sequelize.define(
     "Log",
     {
-      id_logs: {
-        type: DataTypes.STRING(36),
+      id_log: {
+        type: DataTypes.UUID,
+        defaultValue: sequelize.literal("(UUID())"),
         primaryKey: true,
         allowNull: false,
       },
@@ -15,20 +16,26 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(15),
         allowNull: true,
       },
+      id_user: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
       created_at: {
         type: DataTypes.DATE,
-        allowNull: true,
-      },
-      id_user: {
-        type: DataTypes.STRING(36),
         allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
       },
     },
     {
       tableName: "tb_log",
-      timestamps: false,
+      timestamps: true,
       underscored: true,
-    }
+    },
   );
 
   Log.associate = (models) => {
