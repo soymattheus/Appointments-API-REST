@@ -1,13 +1,16 @@
 {
-  "name": "goold-api",
+  "name": "appointment-api",
   "version": "1.0.0",
-  "description": "API to de Goold front",
+  "description": "API for the Appointment front",
   "license": "ISC",
   "author": "Mateus Tavares",
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon ./src/server.js"
+    "dev": "nodemon ./src/server.js",
+    "start": "node dist/server.js",
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -17,7 +20,7 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.16.0",
     "sequelize": "^6.37.7",
-    "uuid": "^13.0.0"
+    "uuid": "8"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

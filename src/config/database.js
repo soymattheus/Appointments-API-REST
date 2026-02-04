@@ -1,19 +1,18 @@
+const { Sequelize, DataTypes } = require("sequelize");
 require("dotenv").config();
 
-const host = process.env.DB_PASSWORD;
-
-module.exports = {
-  dialect: "mysql",
+module.exports = new Sequelize({
+  dialect: process.env.DB_DIALECT,
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
-  username: process.env.DB_USERNAME,
+  username: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 
-  logging: false, // desliga logs SQL
+  logging: false,
 
   define: {
     timestamps: false,
     underscored: true,
   },
-};
+});

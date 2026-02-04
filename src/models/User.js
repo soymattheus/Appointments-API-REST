@@ -3,7 +3,8 @@ module.exports = (sequelize, DataTypes) => {
     "User",
     {
       id_user: {
-        type: DataTypes.STRING(36),
+        type: DataTypes.UUID,
+        defaultValue: sequelize.literal("(UUID())"),
         primaryKey: true,
         allowNull: false,
       },
@@ -40,14 +41,22 @@ module.exports = (sequelize, DataTypes) => {
       state: DataTypes.STRING(50),
       permission_appointments: DataTypes.CHAR(1),
       permission_logs: DataTypes.CHAR(1),
-      created_at: DataTypes.DATE,
-      decrypted_password: DataTypes.STRING(50),
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
     },
     {
       tableName: "tb_user",
-      timestamps: false,
+      timestamps: true,
       underscored: true,
-    }
+    },
   );
 
   User.associate = (models) => {
