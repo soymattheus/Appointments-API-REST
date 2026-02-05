@@ -17,7 +17,7 @@ const Logs = {
       const logs = await Log.findAll({
         where,
         attributes: [
-          "id_logs",
+          "id_log",
           "activity_type",
           "module",
           "created_at",
