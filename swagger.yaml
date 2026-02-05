@@ -1,0 +1,771 @@
+openapi: 3.0.3
+info:
+  title: Appointments API
+  version: 1.0.0
+  description: API for authentication, clients, scheduling, rooms, and logs.
+servers:
+  - url: http://localhost:9890
+    description: Local
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    AuthLoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required: [email, password]
+
+    AuthRegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        type_user:
+          type: string
+          description: "customer | admin"
+        zip_code:
+          type: string
+        street:
+          type: string
+        house_number:
+          type: integer
+        complement:
+          type: string
+        neighborhood:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+      required: [name, last_name, email, password, zip_code]
+
+    UserPublic:
+      type: object
+      properties:
+        id_user:
+          type: string
+          format: uuid
+        status:
+          type: string
+        name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        type_user:
+          type: string
+        zip_code:
+          type: string
+        street:
+          type: string
+        house_number:
+          type: integer
+        complement:
+          type: string
+        neighborhood:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        permission_appointments:
+          type: string
+        permission_logs:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UserRecord:
+      allOf:
+        - $ref: "#/components/schemas/UserPublic"
+        - type: object
+          properties:
+            password:
+              type: string
+
+    AuthLoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserPublic"
+      required: [token, user]
+
+    AuthValidateResponse:
+      type: object
+      properties:
+        valid:
+          type: boolean
+        user:
+          type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+            userEmail:
+              type: string
+              format: email
+            typeUser:
+              type: string
+          required: [userId, userEmail, typeUser]
+      required: [valid, user]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    CustomerListItem:
+      allOf:
+        - $ref: "#/components/schemas/UserPublic"
+        - type: object
+          properties:
+            full_name:
+              type: string
+
+    UpdateProfileRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        zip_code:
+          type: string
+        street:
+          type: string
+        house_number:
+          type: integer
+        complement:
+          type: string
+        neighborhood:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        permission_appointments:
+          type: string
+        permission_logs:
+          type: string
+        status:
+          type: string
+
+    AppointmentCreateRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        id_room:
+          type: string
+          format: uuid
+      required: [id_room]
+
+    AppointmentUpdateRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        room:
+          type: integer
+        status:
+          type: string
+          description: "under_analysis | scheduled | canceled"
+
+    AppointmentRecord:
+      type: object
+      properties:
+        id_appointment:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date-time
+        room:
+          type: integer
+        status:
+          type: string
+        id_user:
+          type: string
+          format: uuid
+        id_room:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AppointmentListItem:
+      type: object
+      properties:
+        id_appointment:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date-time
+        room:
+          type: integer
+        status:
+          type: string
+        id_user:
+          type: string
+          format: uuid
+        id_room:
+          type: string
+          format: uuid
+        user_name:
+          type: string
+        user_last_name:
+          type: string
+        type_user:
+          type: string
+        room_id:
+          type: string
+          format: uuid
+        room_name:
+          type: string
+        full_name:
+          type: string
+
+    RoomCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        init_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        block_of_schedules:
+          type: integer
+      required: [name, init_time, end_time]
+
+    RoomUpdateRequest:
+      type: object
+      properties:
+        id_room:
+          type: string
+          format: uuid
+        name:
+          type: string
+        init_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        block_of_schedules:
+          type: integer
+      required: [id_room]
+
+    RoomRecord:
+      type: object
+      properties:
+        id_room:
+          type: string
+          format: uuid
+        name:
+          type: string
+        init_time:
+          type: string
+          format: time
+        end_time:
+          type: string
+          format: time
+        block_of_schedules:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LogListItem:
+      type: object
+      properties:
+        id_log:
+          type: string
+          format: uuid
+        activity_type:
+          type: string
+        module:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        id_user:
+          type: string
+          format: uuid
+        name:
+          type: string
+        last_name:
+          type: string
+        type_user:
+          type: string
+        full_name:
+          type: string
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthLoginRequest"
+      responses:
+        "200":
+          description: Login realizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthLoginResponse"
+        "401":
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Cadastro
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthRegisterRequest"
+      responses:
+        "201":
+          description: Usuário criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserRecord"
+        "400":
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/validate:
+    get:
+      tags: [Auth]
+      summary: Valida token
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Token válido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthValidateResponse"
+        "401":
+          description: Token inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Logout realizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Token não informado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /customer:
+    get:
+      tags: [Customer]
+      summary: Lista clientes (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerListItem"
+        "401":
+          description: Apenas admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags: [Customer]
+      summary: Atualiza perfil do usuário autenticado
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Perfil atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /customer/{idUser}:
+    put:
+      tags: [Customer]
+      summary: Atualiza perfil de um usuário (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idUser
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateProfileRequest"
+      responses:
+        "200":
+          description: Perfil atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "401":
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /appointment:
+    get:
+      tags: [Appointment]
+      summary: Lista agendamentos
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de agendamentos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AppointmentListItem"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags: [Appointment]
+      summary: Cria agendamento
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentCreateRequest"
+      responses:
+        "201":
+          description: Agendamento criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppointmentRecord"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /appointment/{appointmentId}:
+    put:
+      tags: [Appointment]
+      summary: Atualiza agendamento
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentUpdateRequest"
+      responses:
+        "201":
+          description: Quantidade de registros atualizados
+          content:
+            application/json:
+              schema:
+                type: integer
+        "401":
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Agendamento não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /room:
+    get:
+      tags: [Room]
+      summary: Lista salas
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Lista de salas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoomRecord"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      tags: [Room]
+      summary: Cria sala (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomCreateRequest"
+      responses:
+        "201":
+          description: Sala criada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomRecord"
+        "401":
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags: [Room]
+      summary: Atualiza sala (admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoomUpdateRequest"
+      responses:
+        "200":
+          description: Resultado da atualização
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+        "401":
+          description: Sem permissão
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /logs:
+    get:
+      tags: [Logs]
+      summary: Lista logs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: idUser
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lista de logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LogListItem"
+        "401":
+          description: Token inválido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Erro interno
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
