@@ -6,7 +6,6 @@ const { v4: uuidv4 } = require("uuid");
 exports.AuthController = {
   login: async (req, res) => {
     const { email, password } = req.body;
-
     const user = await User.findOne({
       where: { email: email.toLowerCase() },
     });
@@ -49,10 +48,9 @@ exports.AuthController = {
     }
 
     await Log.create({
-      id_logs: uuidv4(),
+      id_log: uuidv4(),
       activity_type: "Login",
       module: "Minha conta",
-      created_at: new Date(),
       id_user: user.id_user,
     });
 
@@ -110,8 +108,6 @@ exports.AuthController = {
         permission_appointments: "0",
         permission_logs: "0",
         status: "0",
-        created_at: new Date(),
-        decrypted_password: password,
       });
 
       return res.status(201).json(user);

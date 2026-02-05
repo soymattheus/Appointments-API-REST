@@ -15,7 +15,7 @@ const CustomerController = {
       const users = await User.findAll({
         where: { type_user: "customer" },
         attributes: {
-          exclude: ["password", "decrypted_password"],
+          exclude: ["password"],
         },
         order: [["created_at", "DESC"]],
       });
@@ -66,7 +66,6 @@ const CustomerController = {
 
       if (req.body.password) {
         dataToUpdate.password = await bcrypt.hash(req.body.password, 10);
-        dataToUpdate.decrypted_password = req.body.password;
       }
 
       if (req.body.zip_code !== undefined)
