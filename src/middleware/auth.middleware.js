@@ -32,7 +32,8 @@ exports.authMiddleware = async (req, res, next) => {
     req.typeUser = decoded.typeUser;
 
     return next();
-  } catch (err) {
+  } catch (error) {
+    console.error(error);
     return res.status(401).json({ message: "Token inválido ou expirado" });
   }
 };

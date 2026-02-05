@@ -50,6 +50,7 @@ const AppointmentController = {
 
       return res.status(200).json(appointments);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({
         message: "Erro ao buscar agendamentos",
       });
@@ -70,6 +71,7 @@ const AppointmentController = {
 
       return res.status(201).json(appointment);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: "Erro ao criar o agendamento" });
     }
   },
@@ -129,7 +131,10 @@ const AppointmentController = {
 
       return res.status(201).json(affectedRows);
     } catch (error) {
-      return res.status(500).json({ message: "Erro ao criar o agendamento" });
+      console.error(error);
+      return res
+        .status(500)
+        .json({ message: "Erro ao atualizar o agendamento" });
     }
   },
 };

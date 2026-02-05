@@ -31,6 +31,7 @@ const CustomerController = {
 
       return res.status(200).json(formatted);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({
         message: "Erro ao buscar clientes",
       });
@@ -95,8 +96,9 @@ const CustomerController = {
 
       return res
         .status(200)
-        .json({ message: "Perfil atualizado com suacesso!" });
-    } catch (err) {
+        .json({ message: "Perfil atualizado com sucesso!" });
+    } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: "Erro ao atualizar perfil." });
     }
   },

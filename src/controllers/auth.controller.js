@@ -5,56 +5,61 @@ const { v4: uuidv4 } = require("uuid");
 
 exports.AuthController = {
   login: async (req, res) => {
-    const { email, password } = req.body;
-    const user = await User.findOne({
-      where: { email: email.toLowerCase() },
-    });
+    try {
+      const { email, password } = req.body;
+      const user = await User.findOne({
+        where: { email: email.toLowerCase() },
+      });
 
-    if (!user) {
-      return res.status(401).json({ message: "Usuário não encontrado" });
+      if (!user) {
+        return res.status(401).json({ message: "Usuário não encontrado" });
+      }
+
+      const passwordValid = await bcrypt.compare(password, user.password);
+
+      if (!passwordValid) {
+        return res.status(401).json({ message: "Senha inválida" });
+      }
+
+      if (user.status !== "1") {
+        return res.status(401).json({ message: "Usuário inativo" });
+      }
+
+      const token = jwt.sign(
+        {
+          idUser: user.id_user,
+          emailUser: user.email,
+          typeUser: user.type_user,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN },
+      );
+
+      const userData = user.toJSON();
+      delete userData.password;
+
+      if (user.type_user === "admin") {
+        delete userData.state;
+        delete userData.zip_code;
+        delete userData.street;
+        delete userData.house_number;
+        delete userData.complement;
+        delete userData.neighborhood;
+        delete userData.city;
+      }
+
+      await Log.create({
+        id_log: uuidv4(),
+        activity_type: "Login",
+        module: "Minha conta",
+        id_user: user.id_user,
+      });
+
+      return res.json({ token: token, user: userData });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Erro ao fazer login" });
     }
-
-    const passwordValid = await bcrypt.compare(password, user.password);
-
-    if (!passwordValid) {
-      return res.status(401).json({ message: "Senha inválida" });
-    }
-
-    if (user.status !== "1") {
-      return res.status(401).json({ message: "Usuário inativo" });
-    }
-
-    const token = jwt.sign(
-      {
-        idUser: user.id_user,
-        emailUser: user.email,
-        typeUser: user.type_user,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN },
-    );
-
-    const userData = user.toJSON();
-    delete userData.password;
-
-    if (user.type_user === "admin") {
-      delete userData.state;
-      delete userData.zip_code;
-      delete userData.street;
-      delete userData.house_number;
-      delete userData.complement;
-      delete userData.neighborhood;
-      delete userData.city;
-    }
-
-    await Log.create({
-      id_log: uuidv4(),
-      activity_type: "Login",
-      module: "Minha conta",
-      id_user: user.id_user,
-    });
-
-    return res.json({ token: token, user: userData });
   },
 
   register: async (req, res) => {
@@ -112,7 +117,7 @@ exports.AuthController = {
 
       return res.status(201).json(user);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return res
         .status(500)
         .json({ message: "Ocorreu um erro durante a criação do usuário." });
@@ -141,8 +146,8 @@ exports.AuthController = {
       });
 
       return res.json({ message: "Logout realizado com sucesso" });
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: "Erro ao fazer logout" });
     }
   },

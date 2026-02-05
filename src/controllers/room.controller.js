@@ -22,6 +22,7 @@ const RoomController = {
 
       return res.status(201).json(room);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: "Erro ao criar a sala" });
     }
   },
@@ -31,6 +32,7 @@ const RoomController = {
       const rooms = await Room.findAll();
       return res.status(200).json(rooms);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: "Erro ao consultar as salas" });
     }
   },
@@ -62,6 +64,7 @@ const RoomController = {
 
       return res.status(200).json(room);
     } catch (error) {
+      console.error(error);
       return res.status(500).json({ message: "Erro ao criar a sala" });
     }
   },

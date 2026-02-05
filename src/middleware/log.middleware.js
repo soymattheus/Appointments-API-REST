@@ -33,8 +33,8 @@ module.exports = (options = {}) => {
           created_at: new Date(),
           id_user: userId,
         });
-      } catch (err) {
-        console.error("Erro ao registrar log:", err.message);
+      } catch (error) {
+        console.error("Erro ao registrar log:", error.message);
       }
     });
 
