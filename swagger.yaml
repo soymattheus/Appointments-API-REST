@@ -6,6 +6,8 @@ info:
 servers:
   - url: http://localhost:9890
     description: Local
+  - url: https://appointments-api-rest-production.up.railway.app
+    description: Test
 
 components:
   securitySchemes:
